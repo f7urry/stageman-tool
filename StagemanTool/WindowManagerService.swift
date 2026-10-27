@@ -64,6 +64,7 @@ extension WMSection {
             ("Stage Manager", "rectangle.3.group", "Core behaviour and animation"),
             ("Auto Hide", "eye.slash", "When the recent apps strip slides away"),
             ("Window Sets", "square.stack.3d.up", "How windows join and stay in a set"),
+            ("Hot Keys", "keyboard", "Enable Stage Manager keyboard shortcuts"),
         ]),
         .init(name: "Desktop & Widgets", icon: "menubar.dock.rectangle", summary: "What shows on the desktop and what clicking the wallpaper does.", cards: [
             ("Desktop Items", "doc.on.doc", "Files and folders on the desktop"),
@@ -75,15 +76,22 @@ extension WMSection {
             ("Spacing & Insets", "arrow.left.and.right", "Gaps around and between items"),
             ("Item Size", "rectangle.expand.vertical", "Thumbnail dimensions"),
             ("App Icon", "app.badge", "Icon badge on each thumbnail"),
+            ("Ordering", "arrow.up.arrow.down", "Where replaced groups go in the strip"),
         ]),
         .init(name: "Strip Appearance", icon: "paintbrush", summary: "Shadows, corners and the 3D tilt of strip thumbnails.", cards: [
             ("Shadows", "shadow", "Drop shadow under thumbnails"),
             ("Corners", "square.on.circle", "Thumbnail corner rounding"),
             ("3D & Hover", "cube.transparent", "Perspective tilt and hover zoom"),
+            ("Tilt & Fade", "rotate.3d", "Per-row tilt and alpha steps"),
+            ("Rendering", "wand.and.stars", "Shadow scaling, blending and click feedback"),
+        ]),
+        .init(name: "Inline App Exposé", icon: "square.grid.3x2", summary: "Clicking a strip pile to fan out all of an app's windows.", cards: [
+            ("Inline Exposé", "square.grid.3x2", "Layout of the fanned-out windows"),
         ]),
         .init(name: "Tiling", icon: "rectangle.split.2x1", summary: "Window tiling gestures and tiled window look.", cards: [
             ("Gestures", "hand.draw", "Ways to trigger tiling"),
             ("Look", "rectangle.split.2x2", "Tiled window spacing and feedback"),
+            ("Hotzones", "scope", "Edge drop zones while dragging"),
         ]),
         .init(name: "Misc", icon: "ellipsis.circle", summary: "Other window management features.", cards: [
             ("System Features", "macwindow.on.rectangle", "Related window manager features"),
@@ -107,6 +115,13 @@ extension WMSetting {
         .init(key: "ShiftClickToAddToSet", label: "Shift-Click Adds to Set", section: "General", card: "Window Sets", kind: .bool, defaultValue: 1),
         .init(key: "EnableAutomaticNewWindowAddToWindowSet", label: "Auto Add New Windows", section: "General", card: "Window Sets", kind: .bool, defaultValue: 0),
         .init(key: "ShouldPersistLeftStripOrdering", label: "Persist Strip Ordering", section: "General", card: "Window Sets", kind: .bool, defaultValue: 1),
+        .init(key: "EnableStageManagerExposeWindowCycling", label: "Cycle Windows in Exposé", section: "General", card: "Window Sets", kind: .bool, defaultValue: 0),
+        .init(key: "OrderAllWindowsLimitFrontSpace", label: "Limit Order-All to Front Space", section: "General", card: "Window Sets", kind: .bool, defaultValue: 0),
+        .init(key: "EnableStageManagerHotKey", label: "Toggle Stage Manager", section: "General", card: "Hot Keys", kind: .bool, defaultValue: 0),
+        .init(key: "EnableAutohideHotKey", label: "Toggle Auto Hide", section: "General", card: "Hot Keys", kind: .bool, defaultValue: 0),
+        .init(key: "EnablePromoteToSingleAppHotKey", label: "Promote to Single App", section: "General", card: "Hot Keys", kind: .bool, defaultValue: 0),
+        .init(key: "EnableAppStickyHotKey", label: "App Sticky", section: "General", card: "Hot Keys", kind: .bool, defaultValue: 0),
+        .init(key: "EnableSystemStickyHotKey", label: "System Sticky", section: "General", card: "Hot Keys", kind: .bool, defaultValue: 0),
 
         // Desktop & Widgets
         .init(key: "HideDesktop", label: "Hide in Stage Manager", section: "Desktop & Widgets", card: "Desktop Items", kind: .bool, defaultValue: 0),
@@ -134,6 +149,13 @@ extension WMSetting {
         .init(key: "AppIconSize", label: "Size", section: "Strip Layout", card: "App Icon", kind: .int, defaultValue: 32, unit: "pt"),
         .init(key: "LeftStripAppIconLeftOffset", label: "Left Offset", section: "Strip Layout", card: "App Icon", kind: .float, defaultValue: 0, unit: "pt"),
         .init(key: "LeftStripAppIconBottomOffset", label: "Bottom Offset", section: "Strip Layout", card: "App Icon", kind: .float, defaultValue: 0, unit: "pt"),
+        .init(key: "LeftStripAppIconTwoIconHorizontalSpacing", label: "Two-Icon Spacing", section: "Strip Layout", card: "App Icon", kind: .float, defaultValue: 0, unit: "pt"),
+        .init(key: "LeftStripAppIconThreeIconHorizontalSpacing", label: "Three-Icon Spacing", section: "Strip Layout", card: "App Icon", kind: .float, defaultValue: 0, unit: "pt"),
+        .init(key: "ItemHeight", label: "Height", section: "Strip Layout", card: "Item Size", kind: .int, defaultValue: 0, unit: "pt", caption: "0 = automatic"),
+        .init(key: "AbsoluteMinimumItemHeight", label: "Absolute Min Height", section: "Strip Layout", card: "Item Size", kind: .float, defaultValue: 0, unit: "pt"),
+        .init(key: "VerticalInset", label: "Vertical Inset", section: "Strip Layout", card: "Spacing & Insets", kind: .float, defaultValue: 0, unit: "pt"),
+        .init(key: "LeftStripReplacementOrder", label: "Strip Replacement Order", section: "Strip Layout", card: "Ordering", kind: .int, defaultValue: 0),
+        .init(key: "WindowGroupReplacementOrder", label: "Window Group Replacement Order", section: "Strip Layout", card: "Ordering", kind: .int, defaultValue: 0),
 
         // Strip Appearance
         .init(key: "EnableStripShadows", label: "Strip Shadows", section: "Strip Appearance", card: "Shadows", kind: .bool, defaultValue: 1),
@@ -145,6 +167,34 @@ extension WMSetting {
         .init(key: "LeftStripStackDepthStepValue", label: "Stack Depth Step", section: "Strip Appearance", card: "3D & Hover", kind: .float, defaultValue: 0, dependsOn: "EnableStrip3DTransform"),
         .init(key: "StripHoverScaleDistance", label: "Hover Scale", section: "Strip Appearance", card: "3D & Hover", kind: .float, defaultValue: 0, unit: "pt"),
         .init(key: "AppIconHoverScaleDistance", label: "Icon Hover Scale", section: "Strip Appearance", card: "3D & Hover", kind: .float, defaultValue: 0, unit: "pt"),
+        .init(key: "PilePerspectiveDistanceOverride", label: "Perspective Override", section: "Strip Appearance", card: "3D & Hover", kind: .float, defaultValue: 0, unit: "pt", dependsOn: "EnableStrip3DTransform"),
+        .init(key: "PileRotation", label: "Pile Rotation", section: "Strip Appearance", card: "3D & Hover", kind: .float, defaultValue: 0, dependsOn: "EnableStrip3DTransform"),
+        .init(key: "LeftStripTiltLeftBaseAlpha", label: "Tilt Left Base Alpha", section: "Strip Appearance", card: "Tilt & Fade", kind: .float, defaultValue: 0),
+        .init(key: "LeftStripTiltLeftStepValue", label: "Tilt Left Step", section: "Strip Appearance", card: "Tilt & Fade", kind: .float, defaultValue: 0),
+        .init(key: "LeftStripTiltRightBaseAlpha", label: "Tilt Right Base Alpha", section: "Strip Appearance", card: "Tilt & Fade", kind: .float, defaultValue: 0),
+        .init(key: "LeftStripTiltRightStepValue", label: "Tilt Right Step", section: "Strip Appearance", card: "Tilt & Fade", kind: .float, defaultValue: 0),
+        .init(key: "LeftChameleonLeftBaseAlpha", label: "Chameleon Left Base Alpha", section: "Strip Appearance", card: "Tilt & Fade", kind: .float, defaultValue: 0),
+        .init(key: "LeftChameleonLeftStepValue", label: "Chameleon Left Step", section: "Strip Appearance", card: "Tilt & Fade", kind: .float, defaultValue: 0),
+        .init(key: "LeftChameleonRightBaseAlpha", label: "Chameleon Right Base Alpha", section: "Strip Appearance", card: "Tilt & Fade", kind: .float, defaultValue: 0),
+        .init(key: "LeftChameleonRightStepValue", label: "Chameleon Right Step", section: "Strip Appearance", card: "Tilt & Fade", kind: .float, defaultValue: 0),
+        .init(key: "EnableStripShadowsRadiiScaling", label: "Scale Shadow Radii", section: "Strip Appearance", card: "Rendering", kind: .bool, defaultValue: 0, dependsOn: "EnableStripShadows"),
+        .init(key: "EnableStripShadowsInnerRimRadiusScaling", label: "Scale Inner Rim Radius", section: "Strip Appearance", card: "Rendering", kind: .bool, defaultValue: 0, dependsOn: "EnableStripShadows"),
+        .init(key: "EnableStripShadowsOuterRimRadiusScaling", label: "Scale Outer Rim Radius", section: "Strip Appearance", card: "Rendering", kind: .bool, defaultValue: 0, dependsOn: "EnableStripShadows"),
+        .init(key: "EnableStripSourceAtopBlending", label: "Source-Atop Blending", section: "Strip Appearance", card: "Rendering", kind: .bool, defaultValue: 0),
+        .init(key: "EnableStripMostlyOccludedFlag", label: "Mostly-Occluded Flag", section: "Strip Appearance", card: "Rendering", kind: .bool, defaultValue: 0),
+        .init(key: "PileShouldIgnoreHDR", label: "Ignore HDR in Piles", section: "Strip Appearance", card: "Rendering", kind: .bool, defaultValue: 0),
+        .init(key: "StripClickDownScaleDistance", label: "Click-Down Scale", section: "Strip Appearance", card: "Rendering", kind: .float, defaultValue: 0, unit: "pt"),
+        .init(key: "StripClickSessionTimeout", label: "Click Session Timeout", section: "Strip Appearance", card: "Rendering", kind: .float, defaultValue: 0, unit: "s"),
+
+        // Inline App Exposé
+        .init(key: "EnableInlineAppExpose", label: "Inline App Exposé", section: "Inline App Exposé", card: "Inline Exposé", kind: .bool, defaultValue: 1),
+        .init(key: "InlineAppExposeMaximumColumnCount", label: "Max Columns", section: "Inline App Exposé", card: "Inline Exposé", kind: .int, defaultValue: 0, dependsOn: "EnableInlineAppExpose"),
+        .init(key: "InlineAppExposeMaximumItemHeight", label: "Max Item Height", section: "Inline App Exposé", card: "Inline Exposé", kind: .float, defaultValue: 0, unit: "pt", dependsOn: "EnableInlineAppExpose"),
+        .init(key: "InlineAppExposeIconSize", label: "Icon Size", section: "Inline App Exposé", card: "Inline Exposé", kind: .float, defaultValue: 0, unit: "pt", dependsOn: "EnableInlineAppExpose"),
+        .init(key: "InlineAppExposeStripEdgeHorizontalInset", label: "Edge Inset", section: "Inline App Exposé", card: "Inline Exposé", kind: .float, defaultValue: 0, unit: "pt", dependsOn: "EnableInlineAppExpose"),
+        .init(key: "InlineAppExposeStripPileHorizontalSpacing", label: "Horizontal Spacing", section: "Inline App Exposé", card: "Inline Exposé", kind: .float, defaultValue: 0, unit: "pt", dependsOn: "EnableInlineAppExpose"),
+        .init(key: "InlineAppExposeStripPileVerticalSpacing", label: "Vertical Spacing", section: "Inline App Exposé", card: "Inline Exposé", kind: .float, defaultValue: 0, unit: "pt", dependsOn: "EnableInlineAppExpose"),
+        .init(key: "InlineAppExposeStageMinimumHorizontalDistance", label: "Min Distance to Stage", section: "Inline App Exposé", card: "Inline Exposé", kind: .float, defaultValue: 0, unit: "pt", dependsOn: "EnableInlineAppExpose"),
 
         // Tiling
         .init(key: "EnableTilingByEdgeDrag", label: "Drag to Screen Edge", section: "Tiling", card: "Gestures", kind: .bool, defaultValue: 1),
@@ -154,7 +204,12 @@ extension WMSetting {
         .init(key: "TiledWindowSpacing", label: "Spacing", section: "Tiling", card: "Look", kind: .float, defaultValue: 0, unit: "pt", dependsOn: "EnableTiledWindowMargins"),
         .init(key: "ShowTiledWindowBorder", label: "Show Border", section: "Tiling", card: "Look", kind: .bool, defaultValue: 0),
         .init(key: "DisableTilingAnimations", label: "Disable Animations", section: "Tiling", card: "Look", kind: .bool, defaultValue: 0),
-        .init(key: "TilingHotzoneDelay", label: "Hotzone Delay", section: "Tiling", card: "Look", kind: .float, defaultValue: 0, unit: "s"),
+        .init(key: "TilingHotzoneDelay", label: "Hotzone Delay", section: "Tiling", card: "Hotzones", kind: .float, defaultValue: 0, unit: "s"),
+        .init(key: "TilingSoftHotzoneDelay", label: "Soft Hotzone Delay", section: "Tiling", card: "Hotzones", kind: .float, defaultValue: 0, unit: "s"),
+        .init(key: "TilingSoftHotzoneSize", label: "Soft Hotzone Size", section: "Tiling", card: "Hotzones", kind: .float, defaultValue: 0, unit: "pt"),
+        .init(key: "TilingTouchHotzonePadding", label: "Touch Hotzone Padding", section: "Tiling", card: "Hotzones", kind: .float, defaultValue: 0, unit: "pt"),
+        .init(key: "AdjustTilingHotzonesToAvoidDockHotzones", label: "Avoid Dock Hotzones", section: "Tiling", card: "Hotzones", kind: .bool, defaultValue: 1),
+        .init(key: "OrderTilingUIAboveTarget", label: "Tiling Preview Above Window", section: "Tiling", card: "Look", kind: .bool, defaultValue: 0),
 
         // Misc
         .init(key: "EnableShowDesktop", label: "Show Desktop", section: "Misc", card: "System Features", kind: .bool, defaultValue: 1),
